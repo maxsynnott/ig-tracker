@@ -1,27 +1,14 @@
-import fastify from 'fastify';
-import { dbPlugin } from './plugins/dbPlugin';
-
-const server = fastify({
-	logger: true,
-});
-
-server.register(dbPlugin);
-
-server.get('/', async (req, res) => {
-	return { message: 'Hello World!' };
-});
-
-server.get('/users', async (req, res) => {
-	const users = await server.db.user.findMany();
-	return users;
-});
+import { buildApp } from './app';
 
 const start = async () => {
+	const app = buildApp({ logger: true });
+
 	try {
-		await server.listen({ port: 3000 });
+		await app.listen({ port: 3000 });
 	} catch (error) {
-		server.log.error(error);
+		app.log.error(error);
 		process.exit(1);
 	}
 };
+
 start();
