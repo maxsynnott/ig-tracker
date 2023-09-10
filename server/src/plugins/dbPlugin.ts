@@ -1,16 +1,10 @@
 import createFastifyPlugin from 'fastify-plugin';
 import { FastifyPluginAsync } from 'fastify';
-import { PrismaClient } from '@prisma/client';
-import { prismaClient } from '../clients/prismaClient';
-
-declare module 'fastify' {
-	interface FastifyInstance {
-		db: PrismaClient;
-	}
-}
 
 export const dbPlugin: FastifyPluginAsync = createFastifyPlugin(
 	async (server, options) => {
+		const prismaClient = server.diContainer.resolve('dbClient');
+
 		await prismaClient.$connect();
 
 		server.decorate('db', prismaClient);
