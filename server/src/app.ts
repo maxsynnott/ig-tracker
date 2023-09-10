@@ -1,19 +1,26 @@
 import fastify, { FastifyServerOptions } from 'fastify';
 import { dbPlugin } from './plugins/dbPlugin';
+import { fastifyAwilixPlugin, diContainer } from '@fastify/awilix';
+import { UserController } from './controllers/UserController';
+import { Lifetime, asClass, asValue } from 'awilix';
+import { prismaClient } from './clients/prismaClient';
 
 export const buildApp = (options?: FastifyServerOptions) => {
 	const app = fastify(options);
 
 	app.register(dbPlugin);
+	app.register(fastifyAwilixPlugin);
 
-	app.get('/', async (req, res) => {
-		return { message: 'Hello World!' };
+	diContainer.register({
+		dbClient: asValue(prismaClient),
+		userController: asClass(UserController, {
+			lifetime: Lifetime.SINGLETON,
+		}),
 	});
 
-	app.get('/users', async (req, res) => {
-		const users = await app.db.user.findMany();
-		return users;
-	});
+	const userController = diContainer.resolve('userController');
+
+	app.get('/users', userController.index);
 
 	return app;
 };
