@@ -1,11 +1,11 @@
-import fastify from "fastify";
+import fastify from 'fastify';
 
 const server = fastify({
 	logger: true,
 });
 
-server.get("/", async (req, res) => {
-	return { message: "Hello World!" };
+server.get('/', async (req, res) => {
+	return { message: 'Hello World!' };
 });
 
 const start = async () => {
