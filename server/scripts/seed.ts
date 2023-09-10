@@ -4,7 +4,7 @@ const seed = async () => {
 	await db.user.create({
 		data: {
 			handle: '@johnappleseed',
-			email: 'john.applessed@example.com',
+			email: 'john.appleseed@example.com',
 		},
 	});
 };
