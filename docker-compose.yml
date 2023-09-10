@@ -1,0 +1,20 @@
+services:
+    db:
+        image: postgres:15.4
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_USER: user
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: ig-tracker
+        volumes:
+            - ig-tracker-data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready', '-d', 'ig-tracker']
+            interval: 500ms
+            timeout: 5s
+            retries: 20
+
+volumes:
+    ig-tracker-data:
+        driver: local

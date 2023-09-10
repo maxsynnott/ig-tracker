@@ -10,11 +10,19 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"fastify": "^4.22.2"
+		"@fastify/postgres": "^5.2.0",
+		"@prisma/client": "^5.2.0",
+		"fastify": "^4.22.2",
+		"fastify-plugin": "^4.5.1",
+		"pg": "^8.11.3"
 	},
 	"devDependencies": {
 		"@types/node": "^20.6.0",
 		"prettier": "3.0.3",
+		"prisma": "^5.2.0",
 		"tsx": "^3.12.8"
+	},
+	"prisma": {
+		"seed": "tsx scripts/seed.ts"
 	}
 }
