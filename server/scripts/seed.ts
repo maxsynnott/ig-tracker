@@ -1,7 +1,7 @@
-import { prismaClientDependencyFactory } from '../src/clients/prismaClient';
+import { prismaClientFactory } from '../src/clients/prismaClient';
 
 const seed = async () => {
-	const db = prismaClientDependencyFactory();
+	const db = prismaClientFactory();
 
 	await db.user.create({
 		data: {

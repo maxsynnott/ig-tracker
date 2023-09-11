@@ -3,15 +3,23 @@ import { dbPlugin } from './plugins/dbPlugin';
 import { fastifyAwilixPlugin, diContainer } from '@fastify/awilix';
 import { UserController } from './controllers/UserController';
 import { Lifetime, asClass, asFunction } from 'awilix';
-import { prismaClientDependencyFactory } from './clients/prismaClient';
+import { prismaClientFactory } from './clients/prismaClient';
 import fastifyEnv from '@fastify/env';
 import { JSONSchemaType } from 'env-schema';
 import { EnvVars } from './types/env';
 import { AuthController } from './controllers/AuthController';
+import { redisClientFactory } from './clients/redisClient';
+import { SessionService } from './services/SessionService';
+import fastifyCookie from '@fastify/cookie';
 
 const envVarsSchema: JSONSchemaType<EnvVars> = {
 	type: 'object',
-	required: ['DATABASE_URL', 'FACEBOOK_CLIENT_ID', 'FACEBOOK_CLIENT_SECRET'],
+	required: [
+		'DATABASE_URL',
+		'FACEBOOK_CLIENT_ID',
+		'FACEBOOK_CLIENT_SECRET',
+		'COOKIE_SECRET',
+	],
 	properties: {
 		DATABASE_URL: {
 			type: 'string',
@@ -20,6 +28,9 @@ const envVarsSchema: JSONSchemaType<EnvVars> = {
 			type: 'string',
 		},
 		FACEBOOK_CLIENT_SECRET: {
+			type: 'string',
+		},
+		COOKIE_SECRET: {
 			type: 'string',
 		},
 	},
@@ -33,22 +44,36 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 		dotenv: true,
 		schema: envVarsSchema,
 	});
+	app.register(fastifyCookie, {
+		secret: app.config.COOKIE_SECRET,
+	});
 	app.register(fastifyAwilixPlugin, {
 		asyncDispose: true,
 		disposeOnClose: true,
 		disposeOnResponse: true,
 	});
 	diContainer.register({
-		dbClient: asFunction(prismaClientDependencyFactory, {
-			lifetime: Lifetime.SCOPED,
+		dbClient: asFunction(prismaClientFactory, {
+			lifetime: Lifetime.SINGLETON,
 			asyncDispose: async (prismaClient) => {
 				await prismaClient.$disconnect();
 			},
 		}),
+		redisClient: asFunction(redisClientFactory, {
+			lifetime: Lifetime.SINGLETON,
+			asyncDispose: async (redisClient) => {
+				await redisClient.quit();
+			},
+		}),
+
 		authController: asClass(AuthController, {
 			lifetime: Lifetime.SINGLETON,
 		}),
 		userController: asClass(UserController, {
+			lifetime: Lifetime.SINGLETON,
+		}),
+
+		sessionService: asClass(SessionService, {
 			lifetime: Lifetime.SINGLETON,
 		}),
 	});
@@ -58,6 +83,7 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 	const authController = diContainer.resolve('authController');
 	app.get('/auth/facebook/init', authController.facebookInit);
 	app.get('/auth/facebook/signup', authController.facebookSignup);
+	app.get('/auth/facebook/signin', authController.facebookSignin);
 
 	const userController = diContainer.resolve('userController');
 	app.get('/users', userController.index);

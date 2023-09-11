@@ -1,5 +1,5 @@
 services:
-    db:
+    postgres:
         image: postgres:15.4
         ports:
             - 5432:5432
@@ -14,6 +14,11 @@ services:
             interval: 500ms
             timeout: 5s
             retries: 20
+
+    redis:
+        image: redis:7.0
+        ports:
+            - 6379:6379
 
 volumes:
     ig-tracker-data:
