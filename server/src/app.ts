@@ -6,19 +6,20 @@ import { Lifetime, asClass, asFunction } from 'awilix';
 import { prismaClientDependencyFactory } from './clients/prismaClient';
 import fastifyEnv from '@fastify/env';
 import { JSONSchemaType } from 'env-schema';
+import { EnvVars } from './types/env';
+import { AuthController } from './controllers/AuthController';
 
-type EnvVars = {
-	DATABASE_URL: string;
-	INSTAGRAM_APP_SECRET: string;
-};
 const envVarsSchema: JSONSchemaType<EnvVars> = {
 	type: 'object',
-	required: ['DATABASE_URL', 'INSTAGRAM_APP_SECRET'],
+	required: ['DATABASE_URL', 'FACEBOOK_CLIENT_ID', 'FACEBOOK_CLIENT_SECRET'],
 	properties: {
 		DATABASE_URL: {
 			type: 'string',
 		},
-		INSTAGRAM_APP_SECRET: {
+		FACEBOOK_CLIENT_ID: {
+			type: 'string',
+		},
+		FACEBOOK_CLIENT_SECRET: {
 			type: 'string',
 		},
 	},
@@ -44,12 +45,19 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 				await prismaClient.$disconnect();
 			},
 		}),
+		authController: asClass(AuthController, {
+			lifetime: Lifetime.SINGLETON,
+		}),
 		userController: asClass(UserController, {
 			lifetime: Lifetime.SINGLETON,
 		}),
 	});
 
 	app.register(dbPlugin);
+
+	const authController = diContainer.resolve('authController');
+	app.get('/auth/facebook/init', authController.facebookInit);
+	app.get('/auth/facebook/signup', authController.facebookSignup);
 
 	const userController = diContainer.resolve('userController');
 	app.get('/users', userController.index);

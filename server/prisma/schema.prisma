@@ -18,5 +18,7 @@ model User {
     handle String @unique
     email  String @unique
 
+    connectedFacebookUserId String? @unique @map("connected_facebook_user_id")
+
     @@map("user")
 }
