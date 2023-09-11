@@ -1,7 +1,7 @@
 import { buildApp } from './app';
 
 const start = async () => {
-	const app = buildApp({ logger: true });
+	const app = await buildApp({ logger: true });
 
 	try {
 		await app.listen({ port: 3000 });

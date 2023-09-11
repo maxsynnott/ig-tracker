@@ -11,6 +11,8 @@
 	"license": "ISC",
 	"dependencies": {
 		"@fastify/awilix": "^3.2.0",
+		"@fastify/env": "^4.2.0",
+		"@fastify/oauth2": "^7.4.0",
 		"@fastify/postgres": "^5.2.0",
 		"@prisma/client": "^5.2.0",
 		"awilix": "^8.0.1",
