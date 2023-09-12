@@ -1,9 +1,9 @@
-import { prismaClientFactory } from '../src/clients/prismaClient';
+import { diContainer } from '@fastify/awilix';
 
 const seed = async () => {
-	const db = prismaClientFactory();
+	const dbClient = diContainer.resolve('dbClient');
 
-	await db.user.create({
+	await dbClient.user.create({
 		data: {
 			handle: '@johnappleseed',
 			email: 'john.appleseed@example.com',

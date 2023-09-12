@@ -1,16 +1,13 @@
 import fastify, { FastifyServerOptions } from 'fastify';
 import { dbPlugin } from './plugins/dbPlugin';
 import { fastifyAwilixPlugin, diContainer } from '@fastify/awilix';
-import { UserController } from './controllers/UserController';
-import { Lifetime, asClass, asFunction } from 'awilix';
-import { prismaClientFactory } from './clients/prismaClient';
 import fastifyEnv from '@fastify/env';
 import { JSONSchemaType } from 'env-schema';
 import { EnvVars } from './types/env';
-import { AuthController } from './controllers/AuthController';
-import { redisClientFactory } from './clients/redisClient';
-import { SessionService } from './services/SessionService';
 import fastifyCookie from '@fastify/cookie';
+import { registerDiContainerDependencies } from './container';
+
+registerDiContainerDependencies();
 
 const envVarsSchema: JSONSchemaType<EnvVars> = {
 	type: 'object',
@@ -52,31 +49,6 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 		disposeOnClose: true,
 		disposeOnResponse: true,
 	});
-	diContainer.register({
-		dbClient: asFunction(prismaClientFactory, {
-			lifetime: Lifetime.SINGLETON,
-			asyncDispose: async (prismaClient) => {
-				await prismaClient.$disconnect();
-			},
-		}),
-		redisClient: asFunction(redisClientFactory, {
-			lifetime: Lifetime.SINGLETON,
-			asyncDispose: async (redisClient) => {
-				await redisClient.quit();
-			},
-		}),
-
-		authController: asClass(AuthController, {
-			lifetime: Lifetime.SINGLETON,
-		}),
-		userController: asClass(UserController, {
-			lifetime: Lifetime.SINGLETON,
-		}),
-
-		sessionService: asClass(SessionService, {
-			lifetime: Lifetime.SINGLETON,
-		}),
-	});
 
 	app.register(dbPlugin);
 
@@ -100,14 +72,11 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 		}
 	});
 
-	const authController = diContainer.resolve('authController');
-	app.get('/auth/facebook/init', authController.facebookInit);
-	app.get('/auth/facebook/signup', authController.facebookSignup);
-	app.get('/auth/facebook/signin', authController.facebookSignin);
+	const authRoutes = diContainer.resolve('authRoutes');
+	app.register(authRoutes);
 
-	const userController = diContainer.resolve('userController');
-	app.get('/users', userController.index);
-	app.get('/users/current', userController.current);
+	const userRoutes = diContainer.resolve('userRoutes');
+	app.register(userRoutes);
 
 	return app;
 };
