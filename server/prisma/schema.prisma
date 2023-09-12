@@ -20,5 +20,23 @@ model User {
 
     connectedFacebookUserId String? @unique @map("connected_facebook_user_id")
 
+    locationLogs LocationLog[]
+
     @@map("user")
+}
+
+model LocationLog {
+    id        String   @id @default(uuid())
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    longitude Decimal
+    latitude  Decimal
+    timestamp DateTime
+
+    userId String @map("user_id")
+
+    user User @relation(fields: [userId], references: [id])
+
+    @@map("location_log")
 }
