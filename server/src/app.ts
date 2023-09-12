@@ -1,4 +1,4 @@
-import fastify, { FastifyServerOptions } from 'fastify';
+import fastify, { FastifyError, FastifyServerOptions } from 'fastify';
 import { dbPlugin } from './plugins/dbPlugin';
 import { fastifyAwilixPlugin, diContainer } from '@fastify/awilix';
 import fastifyEnv from '@fastify/env';
@@ -6,6 +6,8 @@ import { JSONSchemaType } from 'env-schema';
 import { EnvVars } from './types/env';
 import fastifyCookie from '@fastify/cookie';
 import { registerDiContainerDependencies } from './container';
+import { HttpException } from './exceptions/HttpException';
+import { errorHandler } from './hooks/errorHandler';
 
 registerDiContainerDependencies();
 
@@ -50,6 +52,7 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 		disposeOnResponse: true,
 	});
 	app.register(dbPlugin);
+	app.setErrorHandler(errorHandler);
 
 	const sessionCookieAuthenticator = diContainer.resolve(
 		'sessionCookieAuthenticator',
