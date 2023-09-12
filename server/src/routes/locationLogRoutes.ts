@@ -1,3 +1,4 @@
+import { isAuthenticated } from '../authorizers/isAuthenticated';
 import { LocationLogCreateRouteSchema } from '../schemas/LocationLogCreateRouteSchema';
 import { LocationLogIndexRouteSchema } from '../schemas/LocationLogIndexRouteSchema';
 import { DependencyFactory } from '../types/awilix';
@@ -19,6 +20,7 @@ export const locationLogRoutesFactory: DependencyFactory<
 		app.route({
 			method: 'POST',
 			url: '/location-logs',
+			preHandler: [isAuthenticated],
 			handler: locationLogController.create,
 			schema: zodRouteSchemaToFastifySchema(LocationLogCreateRouteSchema),
 		});
