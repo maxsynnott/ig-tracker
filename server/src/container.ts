@@ -8,6 +8,7 @@ import { authRoutesFactory } from './routes/authRoutes';
 import { userRoutesFactory } from './routes/userRoutes';
 import { SessionService } from './services/SessionService';
 import { DependencyResolvers } from './types/awilix';
+import { sessionCookieAuthenticatorFactory } from './hooks/sessionCookieAuthenticator';
 
 const dependencies: DependencyResolvers = {
 	dbClient: asFunction(dbClientFactory, {
@@ -38,6 +39,10 @@ const dependencies: DependencyResolvers = {
 		lifetime: Lifetime.SINGLETON,
 	}),
 	userRoutes: asFunction(userRoutesFactory, {
+		lifetime: Lifetime.SINGLETON,
+	}),
+
+	sessionCookieAuthenticator: asFunction(sessionCookieAuthenticatorFactory, {
 		lifetime: Lifetime.SINGLETON,
 	}),
 };

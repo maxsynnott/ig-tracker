@@ -4,7 +4,7 @@ import { AuthController } from '../controllers/AuthController';
 import { Cradle } from '@fastify/awilix';
 import type IORedis from 'ioredis';
 import { SessionService } from '../services/SessionService';
-import { FastifyPluginCallback } from 'fastify';
+import { FastifyPluginCallback, preHandlerAsyncHookHandler } from 'fastify';
 import { Resolver } from 'awilix';
 
 declare module '@fastify/awilix' {
@@ -19,6 +19,8 @@ declare module '@fastify/awilix' {
 
 		authRoutes: FastifyPluginCallback;
 		userRoutes: FastifyPluginCallback;
+
+		sessionCookieAuthenticator: preHandlerAsyncHookHandler;
 	}
 }
 

@@ -1,5 +1,5 @@
 import { Cradle } from '@fastify/awilix';
-import { generateUuid } from '../helpers/generateUuid';
+import { generateUuid } from '../utils/generateUuid';
 import { Session } from '../types/types';
 import { config } from '../config/config';
 

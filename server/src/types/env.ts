@@ -10,3 +10,9 @@ declare module 'fastify' {
 		config: EnvVars;
 	}
 }
+
+declare global {
+	namespace NodeJS {
+		interface ProcessEnv extends EnvVars {}
+	}
+}

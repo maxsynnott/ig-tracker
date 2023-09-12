@@ -49,28 +49,12 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 		disposeOnClose: true,
 		disposeOnResponse: true,
 	});
-
 	app.register(dbPlugin);
 
-	const dbClient = diContainer.resolve('dbClient');
-	const sessionService = diContainer.resolve('sessionService');
-	app.addHook('preHandler', async (req, res) => {
-		const signedSessionCookie = req.cookies.session;
-		if (!signedSessionCookie) return;
-		const { valid, value: sessionId } =
-			app.unsignCookie(signedSessionCookie);
-		if (!valid || !sessionId) return;
-
-		const session = await sessionService.getById(sessionId);
-		if (!session) return;
-
-		const user = await dbClient.user.findUnique({
-			where: { id: session.userId },
-		});
-		if (user) {
-			req.currentUser = user;
-		}
-	});
+	const sessionCookieAuthenticator = diContainer.resolve(
+		'sessionCookieAuthenticator',
+	);
+	app.addHook('preHandler', sessionCookieAuthenticator);
 
 	const authRoutes = diContainer.resolve('authRoutes');
 	app.register(authRoutes);
