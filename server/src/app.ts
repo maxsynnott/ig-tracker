@@ -80,6 +80,26 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 
 	app.register(dbPlugin);
 
+	const dbClient = diContainer.resolve('dbClient');
+	const sessionService = diContainer.resolve('sessionService');
+	app.addHook('preHandler', async (req, res) => {
+		const signedSessionCookie = req.cookies.session;
+		if (!signedSessionCookie) return;
+		const { valid, value: sessionId } =
+			app.unsignCookie(signedSessionCookie);
+		if (!valid || !sessionId) return;
+
+		const session = await sessionService.getById(sessionId);
+		if (!session) return;
+
+		const user = await dbClient.user.findUnique({
+			where: { id: session.userId },
+		});
+		if (user) {
+			req.currentUser = user;
+		}
+	});
+
 	const authController = diContainer.resolve('authController');
 	app.get('/auth/facebook/init', authController.facebookInit);
 	app.get('/auth/facebook/signup', authController.facebookSignup);
@@ -87,6 +107,7 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 
 	const userController = diContainer.resolve('userController');
 	app.get('/users', userController.index);
+	app.get('/users/current', userController.current);
 
 	return app;
 };
