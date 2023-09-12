@@ -6,6 +6,8 @@ import type IORedis from 'ioredis';
 import { SessionService } from '../services/SessionService';
 import { FastifyPluginCallback, preHandlerAsyncHookHandler } from 'fastify';
 import { Resolver } from 'awilix';
+import { LocationLogService } from '../services/LocationLogService';
+import { LocationLogController } from '../controllers/LocationLogController';
 
 declare module '@fastify/awilix' {
 	interface Cradle {
@@ -13,12 +15,15 @@ declare module '@fastify/awilix' {
 		redisClient: IORedis;
 
 		authController: AuthController;
+		locationLogController: LocationLogController;
 		userController: UserController;
 
+		locationLogService: LocationLogService;
 		sessionService: SessionService;
 
 		authRoutes: FastifyPluginCallback;
 		userRoutes: FastifyPluginCallback;
+		locationLogRoutes: FastifyPluginCallback;
 
 		sessionCookieAuthenticator: preHandlerAsyncHookHandler;
 	}

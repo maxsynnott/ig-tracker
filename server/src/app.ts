@@ -62,5 +62,8 @@ export const buildApp = async (options?: FastifyServerOptions) => {
 	const userRoutes = diContainer.resolve('userRoutes');
 	app.register(userRoutes);
 
+	const locationLogRoutes = diContainer.resolve('locationLogRoutes');
+	app.register(locationLogRoutes);
+
 	return app;
 };

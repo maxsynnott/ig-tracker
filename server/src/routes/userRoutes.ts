@@ -6,7 +6,6 @@ export const userRoutesFactory: DependencyFactory<'userRoutes'> = (
 	const userController = dependencies.userController;
 
 	return async (app) => {
-		app.get('/users', userController.index);
 		app.get('/users/current', userController.current);
 	};
 };

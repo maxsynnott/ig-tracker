@@ -8,12 +8,6 @@ export class UserController {
 		this.dbClient = dependencies.dbClient;
 	}
 
-	index: RouteHandler = async (req, res) => {
-		const users = this.dbClient.user.findMany();
-
-		return users;
-	};
-
 	current: RouteHandler = async (req, res) => {
 		if (!req.currentUser) {
 			res.status(401).send({ error: 'UnauthenticatedException' });
